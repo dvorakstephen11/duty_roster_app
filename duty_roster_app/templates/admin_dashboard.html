@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+{% if church %}
+<div class="card mb-3">
+  <div class="card-body">
+    <h5 class="card-title">{{ church.name }}</h5>
+    <p class="card-text"><strong>Worship Times:</strong> {{ church.worship_times }}</p>
+    <p class="card-text"><strong>Worship Activities:</strong> {{ church.worship_activities }}</p>
+    <p class="card-text"><strong>Scheduling Rules:</strong> {{ church.scheduling_rules }}</p>
+    <a href="{{ url_for('admin_setup') }}" class="btn btn-secondary">Edit Setup</a>
+  </div>
+</div>
+{% else %}
+<p>No church setup found. Please <a href="{{ url_for('admin_setup') }}">set up your church</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Church Setup</h2>
+
+<!-- Church Name and Scheduling Rules -->
+<div class="mb-3">
+  <label>Church Name</label>
+  <input type="text" id="church-name" class="form-control" value="{{ church.name }}" readonly>
+</div>
+<div class="mb-3">
+  <label>Scheduling Rules</label>
+  <input type="text" id="scheduling-rules" class="form-control" value="{{ church.scheduling_rules }}" readonly>
+</div>
+
+<h3>Worship Services</h3>
+<div id="services-container" class="row">
+  {% for service in services %}
+  <div class="col-md-4 service-col" data-id="{{ service.id }}">
+    <div class="card mb-3 service-card">
+      <div class="card-body">
+        <div class="view-mode">
+          <p><strong>Day:</strong> <span class="service-day">{{ service.day }}</span></p>
+          <p><strong>Time:</strong> <span class="service-time">{{ service.time }}</span></p>
+          <p><strong>Activities:</strong> <span class="service-activities">{{ service.activities }}</span></p>
+          <button type="button" class="btn btn-secondary btn-sm edit-service">Edit</button>
+          <button type="button" class="btn btn-danger btn-sm delete-service">X</button>
+        </div>
+        <div class="edit-mode" style="display: none;">
+          <div class="mb-2">
+            <label>Day</label>
+            <input type="text" class="form-control input-day" value="{{ service.day }}">
+          </div>
+          <div class="mb-2">
+            <label>Time</label>
+            <input type="text" class="form-control input-time" value="{{ service.time }}">
+          </div>
+          <div class="mb-2">
+            <label>Activities (comma separated)</label>
+            <input type="text" class="form-control input-activities" value="{{ service.activities }}">
+          </div>
+          <button type="button" class="btn btn-success btn-sm save-service">Save</button>
+          <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <!-- Plus button column -->
+  <div class="col-md-4 service-col" id="add-service-col">
+    <div class="card mb-3" style="border: 2px dashed #28a745; cursor: pointer; text-align: center; color: #28a745;">
+      <div class="card-body">
+        <h1>+</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+<!-- AI Assistant Section -->
+<div id="ai-assistant" style="width:25%; margin: 20px auto; text-align: center; position: relative;">
+  <h3>AI Assistant</h3>
+  <textarea id="nl_instructions" class="form-control" placeholder="What would you like to change about the worship services?" style="resize: none; height: 80px;"></textarea>
+  <!-- Right-arrow play button in the bottom right of the textarea -->
+  <button id="ai-submit" type="button" style="position: absolute; right: 10px; bottom: 10px; background: none; border: none;">
+    <img src="{{ url_for('static', filename='play_icon.png') }}" alt="Submit" style="width:30px; height:30px;">
+  </button>
+</div>
+<div id="ai-loading" style="display:none; text-align: center;">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <p>Updating...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// Inline editing for service cards
+document.querySelectorAll('.edit-service').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var card = btn.closest('.service-card');
+    card.querySelector('.view-mode').style.display = 'none';
+    card.querySelector('.edit-mode').style.display = 'block';
+  });
+});
+document.querySelectorAll('.cancel-edit').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var card = btn.closest('.service-card');
+    card.querySelector('.edit-mode').style.display = 'none';
+    card.querySelector('.view-mode').style.display = 'block';
+  });
+});
+document.querySelectorAll('.save-service').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var col = btn.closest('.service-col');
+    var serviceId = col.getAttribute('data-id');
+    var card = btn.closest('.service-card');
+    var day = card.querySelector('.input-day').value;
+    var timeVal = card.querySelector('.input-time').value;
+    var activities = card.querySelector('.input-activities').value;
+    var payload = { day: day, time: timeVal, activities: activities };
+    if(serviceId){ // update existing service
+      payload.id = serviceId;
+      fetch("{{ url_for('update_service') }}", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.success){
+          card.querySelector('.service-day').textContent = day;
+          card.querySelector('.service-time').textContent = timeVal;
+          card.querySelector('.service-activities').textContent = activities;
+          card.querySelector('.edit-mode').style.display = 'none';
+          card.querySelector('.view-mode').style.display = 'block';
+        }
+      });
+    } else { // new service
+      fetch("{{ url_for('add_service') }}", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.success){
+          col.setAttribute('data-id', data.id);
+          card.querySelector('.view-mode .service-day').textContent = day;
+          card.querySelector('.view-mode .service-time').textContent = timeVal;
+          card.querySelector('.view-mode .service-activities').textContent = activities;
+          card.querySelector('.edit-mode').style.display = 'none';
+          card.querySelector('.view-mode').style.display = 'block';
+        }
+      });
+    }
+  });
+});
+document.querySelectorAll('.delete-service').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    if(confirm("Are you sure you want to delete this worship service?")){
+      var col = btn.closest('.service-col');
+      var serviceId = col.getAttribute('data-id');
+      if(serviceId){
+        fetch("{{ url_for('delete_service') }}", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ id: serviceId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.success){
+            col.remove();
+          }
+        });
+      } else {
+        col.remove();
+      }
+    }
+  });
+});
+
+// Green plus button to add a new service (in edit mode)
+document.getElementById('add-service-col').addEventListener('click', function(){
+  var container = document.getElementById('services-container');
+  // Remove the plus button column temporarily
+  var plusCol = document.getElementById('add-service-col');
+  plusCol.remove();
+  // Create new column with a blank card in edit mode.
+  var col = document.createElement('div');
+  col.className = "col-md-4 service-col";
+  col.setAttribute("data-id", "");
+  var card = document.createElement('div');
+  card.className = "card mb-3 service-card";
+  card.innerHTML = `
+    <div class="card-body">
+      <div class="edit-mode">
+        <div class="mb-2">
+          <label>Day</label>
+          <input type="text" class="form-control input-day" value="" required>
+        </div>
+        <div class="mb-2">
+          <label>Time</label>
+          <input type="text" class="form-control input-time" value="" required>
+        </div>
+        <div class="mb-2">
+          <label>Activities (comma separated)</label>
+          <input type="text" class="form-control input-activities" value="" required>
+        </div>
+        <button type="button" class="btn btn-success btn-sm save-service">Save</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+      </div>
+    </div>
+  `;
+  col.appendChild(card);
+  container.appendChild(col);
+  // Reattach event listeners for the new card's buttons.
+  col.querySelector('.cancel-edit').addEventListener('click', function(){
+    col.remove();
+  });
+  col.querySelector('.save-service').addEventListener('click', function(){
+    var day = card.querySelector('.input-day').value;
+    var timeVal = card.querySelector('.input-time').value;
+    var activities = card.querySelector('.input-activities').value;
+    var payload = { day: day, time: timeVal, activities: activities };
+    fetch("{{ url_for('add_service') }}", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.success){
+        col.setAttribute('data-id', data.id);
+        // Replace edit-mode with view-mode.
+        card.innerHTML = `
+          <div class="view-mode">
+            <p><strong>Day:</strong> <span class="service-day">${day}</span></p>
+            <p><strong>Time:</strong> <span class="service-time">${timeVal}</span></p>
+            <p><strong>Activities:</strong> <span class="service-activities">${activities}</span></p>
+            <button type="button" class="btn btn-secondary btn-sm edit-service">Edit</button>
+            <button type="button" class="btn btn-danger btn-sm delete-service">X</button>
+          </div>
+          <div class="edit-mode" style="display: none;">
+            <div class="mb-2">
+              <label>Day</label>
+              <input type="text" class="form-control input-day" value="${day}">
+            </div>
+            <div class="mb-2">
+              <label>Time</label>
+              <input type="text" class="form-control input-time" value="${timeVal}">
+            </div>
+            <div class="mb-2">
+              <label>Activities (comma separated)</label>
+              <input type="text" class="form-control input-activities" value="${activities}">
+            </div>
+            <button type="button" class="btn btn-success btn-sm save-service">Save</button>
+            <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+          </div>
+        `;
+        // Reattach listeners for edit and delete in the new card.
+        col.querySelector('.edit-service').addEventListener('click', function(){
+          var c = col.querySelector('.service-card');
+          c.querySelector('.view-mode').style.display = 'none';
+          c.querySelector('.edit-mode').style.display = 'block';
+        });
+        col.querySelector('.delete-service').addEventListener('click', function(){
+          if(confirm("Are you sure you want to delete this worship service?")){
+            fetch("{{ url_for('delete_service') }}", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({ id: data.id })
+            })
+            .then(response => response.json())
+            .then(res => {
+              if(res.success){
+                col.remove();
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+  // Re-add the plus button column at the end.
+  container.appendChild(plusCol);
+});
+
+// AI Assistant submission handling.
+function submitAiAssistant(){
+  var instructions = document.getElementById('nl_instructions').value;
+  if(!instructions) return;
+  document.getElementById('ai-loading').style.display = 'block';
+  fetch("{{ url_for('parse_worship_setup') }}", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instruction: instructions })
+  })
+  .then(response => response.json())
+  .then(data => {
+    var servicesContainer = document.getElementById('services-container');
+    // Remove plus button column before re-rendering.
+    var plusCol = document.getElementById('add-service-col');
+    plusCol.remove();
+    servicesContainer.innerHTML = "";
+    data.worship_services.forEach(function(service){
+      var col = document.createElement('div');
+      col.className = "col-md-4 service-col";
+      col.setAttribute("data-id", service.id);
+      col.innerHTML = `
+        <div class="card mb-3 service-card highlight">
+          <div class="card-body">
+            <div class="view-mode">
+              <p><strong>Day:</strong> <span class="service-day">${service.day}</span></p>
+              <p><strong>Time:</strong> <span class="service-time">${service.time}</span></p>
+              <p><strong>Activities:</strong> <span class="service-activities">${service.activities.join(", ")}</span></p>
+              <button type="button" class="btn btn-secondary btn-sm edit-service">Edit</button>
+              <button type="button" class="btn btn-danger btn-sm delete-service">X</button>
+            </div>
+            <div class="edit-mode" style="display: none;">
+              <div class="mb-2">
+                <label>Day</label>
+                <input type="text" class="form-control input-day" value="${service.day}">
+              </div>
+              <div class="mb-2">
+                <label>Time</label>
+                <input type="text" class="form-control input-time" value="${service.time}">
+              </div>
+              <div class="mb-2">
+                <label>Activities (comma separated)</label>
+                <input type="text" class="form-control input-activities" value="${service.activities.join(", ")}">
+              </div>
+              <button type="button" class="btn btn-success btn-sm save-service">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      servicesContainer.appendChild(col);
+    });
+    // Re-add the plus button column at the end.
+    servicesContainer.appendChild(plusCol);
+    document.getElementById('ai-loading').style.display = 'none';
+    document.getElementById('nl_instructions').value = "";
+    // Remove the highlight after 2 seconds.
+    setTimeout(function(){
+      document.querySelectorAll('.service-card.highlight').forEach(function(card){
+        card.classList.remove('highlight');
+      });
+    }, 2000);
+  });
+}
+document.getElementById('ai-submit').addEventListener('click', submitAiAssistant);
+document.getElementById('nl_instructions').addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.key === 'Enter'){
+    submitAiAssistant();
+  }
+});
+</script>
+{% endblock %}

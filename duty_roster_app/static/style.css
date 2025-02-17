@@ -1,0 +1,12 @@
+body {
+    background-color: #f8f9fa;
+  }
+  
+.service-card.highlight {
+  animation: highlightFade 2s forwards;
+}
+
+@keyframes highlightFade {
+  0% { background-color: #d4edda; }  /* light green */
+  100% { background-color: transparent; }
+}

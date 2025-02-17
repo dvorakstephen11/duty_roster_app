@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Request Substitution for {{ duty.duty_date }} - {{ duty.activity }}</h2>
+<form method="post">
+  <div class="mb-3">
+    <label>Substitute Email</label>
+    <input type="email" name="substitute_email" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label>Message</label>
+    <textarea name="message" class="form-control" rows="3"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit Request</button>
+</form>
+{% endblock %}

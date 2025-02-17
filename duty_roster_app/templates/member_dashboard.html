@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Upcoming Assignments</h2>
+{% if assignments %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Activity</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for duty in assignments %}
+      <tr>
+        <td>{{ duty.duty_date }}</td>
+        <td>{{ duty.activity }}</td>
+        <td>
+          <a href="{{ url_for('member_request_substitution', duty_id=duty.id) }}" class="btn btn-sm btn-warning">Request Substitution</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No upcoming assignments.</p>
+{% endif %}
+{% endblock %}

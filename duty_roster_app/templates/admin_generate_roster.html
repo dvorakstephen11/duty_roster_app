@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Generate Duty Roster</h2>
+<form method="post">
+  {{ csrf_token() }}
+
+  <div class="mb-3">
+    <label>Month (1-12)</label>
+    <input type="number" name="month" class="form-control" min="1" max="12" required>
+  </div>
+  <div class="mb-3">
+    <label>Year</label>
+    <input type="number" name="year" class="form-control" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Generate Roster</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelector('input[name="year"]').value = new Date().getFullYear();
+  });
+</script>
+{% endblock %}
