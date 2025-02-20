@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Generate Dummy Members</h2>
+  
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        <div class="mb-3">
+          <label for="count" class="form-label">Number of Members to Generate</label>
+          <input type="number" 
+                 class="form-control" 
+                 id="count" 
+                 name="count" 
+                 value="40" 
+                 min="1" 
+                 max="100">
+          <div class="form-text">Default is 40 members. Maximum allowed is 100.</div>
+        </div>
+        
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle"></i>
+          Warning: This will delete all existing members and replace them with newly generated ones.
+        </div>
+
+        <button type="submit" class="btn btn-primary">Generate Members</button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} 

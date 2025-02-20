@@ -1,0 +1,5 @@
+{
+  "timestamp": "2025-02-18T16:05:22.914404",
+  "prompt": "Add singing, prayer, and preaching to Sunday 10:30",
+  "response": "[\n  {\n    \"day\": \"Sunday\",\n    \"time\": \"10:30 AM\",\n    \"activities\": [\"Singing\", \"Prayer\", \"Preaching\"],\n    \"delete\": false\n  }\n]"
+}

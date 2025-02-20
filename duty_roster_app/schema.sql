@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS substitution_requests;
 DROP TABLE IF EXISTS duty_roster;
+DROP TABLE IF EXISTS activity_eligibility;
 DROP TABLE IF EXISTS worship_services;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS churches;
@@ -27,6 +28,16 @@ CREATE TABLE users (
     role TEXT NOT NULL,
     church_id INTEGER,
     FOREIGN KEY(church_id) REFERENCES churches(id)
+);
+
+CREATE TABLE activity_eligibility (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    church_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    activity TEXT NOT NULL,
+    FOREIGN KEY(church_id) REFERENCES churches(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    UNIQUE(church_id, user_id, activity)
 );
 
 CREATE TABLE duty_roster (

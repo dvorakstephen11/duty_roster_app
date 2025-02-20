@@ -1,17 +1,41 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Admin Dashboard</h2>
-{% if church %}
-<div class="card mb-3">
-  <div class="card-body">
-    <h5 class="card-title">{{ church.name }}</h5>
-    <p class="card-text"><strong>Worship Times:</strong> {{ church.worship_times }}</p>
-    <p class="card-text"><strong>Worship Activities:</strong> {{ church.worship_activities }}</p>
-    <p class="card-text"><strong>Scheduling Rules:</strong> {{ church.scheduling_rules }}</p>
-    <a href="{{ url_for('admin_setup') }}" class="btn btn-secondary">Edit Setup</a>
+<div class="container">
+  <h2 class="mb-4">Admin Dashboard</h2>
+  
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Church Setup</h5>
+      <p class="card-text">Configure your church's basic information and worship services.</p>
+      <a href="{{ url_for('admin.setup') }}" class="btn btn-secondary">Edit Setup</a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Duty Roster</h5>
+      <p class="card-text">Generate and manage the duty roster for your church.</p>
+      <a href="{{ url_for('admin.generate_roster') }}" class="btn btn-primary">Generate Roster</a>
+      <a href="{{ url_for('admin.roster') }}" class="btn btn-secondary">View Roster</a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Member Management</h5>
+      <p class="card-text">Manage member eligibility for different activities.</p>
+      <a href="{{ url_for('admin.eligibility') }}" class="btn btn-secondary">Manage Eligibility</a>
+      <a href="{{ url_for('admin.generate_dummy_members') }}" class="btn btn-secondary">Generate Dummy Members</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Substitution Requests</h5>
+      <p class="card-text">Review and manage substitution requests from members.</p>
+      <a href="{{ url_for('admin.substitutions') }}" class="btn btn-secondary">View Requests</a>
+    </div>
   </div>
 </div>
-{% else %}
-<p>No church setup found. Please <a href="{{ url_for('admin_setup') }}">set up your church</a>.</p>
-{% endif %}
 {% endblock %}

@@ -1,0 +1,5 @@
+{
+  "timestamp": "2025-02-20T17:15:44.416104",
+  "prompt": "Remove sunday 530",
+  "response": "[\n  {\n    \"day\": \"Sunday\",\n    \"time\": \"5:30 PM\",\n    \"delete\": true\n  }\n]"
+}

@@ -10,36 +10,39 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('index') }}">Duty Roster</a>
+    <a class="navbar-brand" href="{{ url_for('auth.index') }}">Duty Roster</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% if session.get('user_id') %}
           {% if session.get('role') == 'admin' %}
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'admin_setup' %}active{% endif %}" href="{{ url_for('admin_setup') }}">Setup</a>
+              <a class="nav-link {% if request.endpoint == 'admin.setup' %}active{% endif %}" href="{{ url_for('admin.setup') }}">Setup</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'admin_generate_roster' %}active{% endif %}" href="{{ url_for('admin_generate_roster') }}">Generate Roster</a>
+              <a class="nav-link {% if request.endpoint == 'admin.generate_roster' %}active{% endif %}" href="{{ url_for('admin.generate_roster') }}">Generate Roster</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'admin_roster' %}active{% endif %}" href="{{ url_for('admin_roster') }}">View Roster</a>
+              <a class="nav-link {% if request.endpoint == 'admin.roster' %}active{% endif %}" href="{{ url_for('admin.roster') }}">View Roster</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'admin_substitutions' %}active{% endif %}" href="{{ url_for('admin_substitutions') }}">Substitution Requests</a>
+              <a class="nav-link {% if request.endpoint == 'admin.substitutions' %}active{% endif %}" href="{{ url_for('admin.substitutions') }}">Substitution Requests</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'generate_dummy_members' %}active{% endif %}" href="{{ url_for('generate_dummy_members') }}">Generate Dummy Members</a>
+              <a class="nav-link {% if request.endpoint == 'admin.eligibility' %}active{% endif %}" href="{{ url_for('admin.eligibility') }}">Eligibility</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'admin.generate_dummy_members' %}active{% endif %}" href="{{ url_for('admin.generate_dummy_members') }}">Generate Dummy Members</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint == 'member_dashboard' %}active{% endif %}" href="{{ url_for('member_dashboard') }}">Dashboard</a>
+              <a class="nav-link {% if request.endpoint == 'member.dashboard' %}active{% endif %}" href="{{ url_for('member.dashboard') }}">Dashboard</a>
             </li>
           {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
           </li>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
         {% endif %}
       </ul>      
     </div>

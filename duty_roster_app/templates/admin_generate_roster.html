@@ -2,8 +2,6 @@
 {% block content %}
 <h2>Generate Duty Roster</h2>
 <form method="post">
-  {{ csrf_token() }}
-
   <div class="mb-3">
     <label>Month (1-12)</label>
     <input type="number" name="month" class="form-control" min="1" max="12" required>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Activity Eligibility</h2>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">All Activities</h5>
+    <p class="text-muted">These are all activities defined in your worship services.</p>
+    <div class="mb-3">
+      {% for activity in all_activities %}
+        <span class="badge bg-secondary me-2">{{ activity }}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form method="post" class="mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Member Eligibility</h5>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                {% for activity in all_activities %}
+                <th>{{ activity }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in members %}
+              <tr>
+                <td>{{ member.name }}</td>
+                {% for activity in all_activities %}
+                <td>
+                  <div class="form-check">
+                    <input type="checkbox" 
+                           class="form-check-input" 
+                           name="eligibility_{{ member.id }}_{{ activity }}"
+                           {% if (member.id, activity) in eligibility %}checked{% endif %}>
+                  </div>
+                </td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <button type="submit" class="btn btn-primary">Save Eligibility</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} 
